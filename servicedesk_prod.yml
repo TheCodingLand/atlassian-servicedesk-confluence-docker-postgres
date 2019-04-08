@@ -61,7 +61,6 @@ services:
         - "traefik.enable=true"
         - "traefik.port=8080"
         - "traefik.frontend.rule=Host:${CI_PROJECT_NAME}.${JIRA_DOMAIN}"
-        #- "traefik.frontend.rule=Host:${CI_PROJECT_NAME}.${JIRA_DOMAIN}"
         - "traefik.frontend.entryPoints=http, https"
     networks:
       - internal
