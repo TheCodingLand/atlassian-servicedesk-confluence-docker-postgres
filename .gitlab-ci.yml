@@ -4,6 +4,7 @@ services:
   - name: registry.tinadev.ctg.lu/root/dind:tina
     
 stages:
+  - build 
   - deploy
   
 variables:
@@ -16,7 +17,10 @@ variables:
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 
-
+build:
+  stage: build
+  script:
+    - docker build . -t $CI_REGISTRY_IMAGE:$CI_BUILD_REF
 
 deploy_dev:
   stage: deploy

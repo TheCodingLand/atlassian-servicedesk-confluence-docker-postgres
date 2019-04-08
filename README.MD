@@ -26,7 +26,21 @@ grant all privileges on database servicedesk to jirauser;
 
 ## after that, setup your instance like normal, and add an app link to 'confluence.(yourdomain)'
 
-### TODO : 
--   custom image with a symbolic link to a folder that is not in the NFS for indexes (cache)
+## lucene doesnt like NFS : 
+
+So if you use NFS, you can use the dockerfile I've provided, and switch the image in the service definition, it builds an image with a symlinked folder inside the container, using the thin layer of the container to store the cache. It's sub-optimal as the cache will then be rebuilt at each run, but the only option to have a healthy cache right now. 
+
+# TODO :
+
 -   you are supposed to store postgres password in a secret for the production deployment
 -   add DB config for confluence (you need a licence to set it up with a production database, as opposed to servicedesk, which can be used directly with dedicated database. why this Atlassian ?)
+
+## To use: 
+
+If you want tu use env vars with swarm you can do sth like:
+export VARIABLE=VALUE && export .. && docker stack deploy jiraapps -c servicedesk_dev.yml
+
+or
+
+Just replace the ${VARs} in the stack files.
+

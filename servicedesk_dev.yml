@@ -4,6 +4,7 @@ services:
     image: postgres:9.6
     volumes:
       - sd_jira_postgres_dev:/var/lib/postgresql/data
+      - jira_cache_dev:/cache
     networks:
       - internal_dev
     environment:
@@ -72,6 +73,7 @@ services:
       - CATALINA_OPTS='-Xmx4G'
 
 volumes:
+  jira_cache_dev:
   n_jira_sd_db:
     driver_opts:
       type: "nfs"
