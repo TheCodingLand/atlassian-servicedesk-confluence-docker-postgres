@@ -1,0 +1,3 @@
+create user jirauser with encrypted password dockertest;
+grant all privileges on database servicedesk to jirauser;
+CREATE DATABASE servicedesk WITH ENCODING 'UNICODE' LC_COLLATE 'C' LC_CTYPE 'C' TEMPLATE template0;

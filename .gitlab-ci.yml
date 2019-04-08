@@ -1,0 +1,43 @@
+image: registry.tinadev.ctg.lu/root/dind:tina
+
+services:
+  - name: registry.tinadev.ctg.lu/root/dind:tina
+    
+stages:
+  - deploy
+  
+variables:
+  #DOCKER_HOST: tcp://localhost:2375
+  #DOCKER_DRIVER: overlay2
+  CONTAINER_IMAGE: $CI_REGISTRY_IMAGE
+  #CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$CI_BUILD_REF
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+
+
+
+deploy_dev:
+  stage: deploy
+  environment:
+    name: dev
+    url: http://servicedesk.tinadev.ctg.lu
+  script:
+    - export NFS_ROOT="/home/jlebourg/data"
+    - docker stack deploy jira_dev -c ${CI_PROJECT_NAME}_dev.yml
+  only:
+    - master
+    
+deploy_prod:
+  stage: deploy
+  when: manual
+  environment:
+    name: production
+    url: http://servicedesk.tina.ctg.lu
+  script:
+    - export NFS_ROOT="/home/jlebourg/data"
+    - docker stack deploy jira -c ${CI_PROJECT_NAME}.yml
+    
+  only:
+    - master
