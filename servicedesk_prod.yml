@@ -1,0 +1,98 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres:9.6
+    volumes:
+      - sd_jira_postgres_prod:/var/lib/postgresql/data
+    networks:
+      - internal
+    environment:
+      - POSTGRES_PASSWORD=dockertest
+  confluence_prod:
+    image: atlassian/confluence-server
+    deploy:
+      labels:
+        - "traefik.docker.network=proxy"
+        - "traefik.enable=true"
+        - "traefik.confluence.port=8090"
+        - "traefik.confluence.backend=confluence"
+        - "traefik.confluence.frontend.rule=Host:confluence.${JIRA_DOMAIN}"
+        - "traefik.confluence.frontend.entryPoints=http, https"
+        - "traefik.synchrony.port=8091"
+        - "traefik.synchrony.backend=synchrony"
+        - "traefik.synchrony.frontend.rule=Host:confluence.${JIRA_DOMAIN};Path:/synchrony"
+        - "traefik.synchrony.frontend.entryPoints=http, https"
+    volumes:
+      - confluence:/var/atlassian/application-data/confluence
+    networks:
+      - internal
+      - proxy
+
+    environment:
+      - CATALINA_CONNECTOR_PROXYNAME=confluence.${JIRA_DOMAIN}
+      - CATALINA_CONNECTOR_PROXYPORT=80
+     
+      
+  adminer: 
+    image: adminer
+    deploy:
+      labels:
+        - "traefik.backend=adminer"
+        - "traefik.docker.network=proxy"
+        - "traefik.enable=true"
+        - "traefik.port=8080"
+        - "traefik.frontend.rule=Host:adminer.${JIRA_DOMAIN}"
+        - "traefik.frontend.entryPoints=http, https"
+
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+    networks:
+      - internal
+      - proxy
+    
+
+  servicedesk:
+    image: cptactionhank/atlassian-jira-service-desk:4.0.2
+    #ports
+    deploy:
+      labels:
+        - "traefik.backend=${CI_PROJECT_NAME}"
+        - "traefik.docker.network=proxy"
+        - "traefik.enable=true"
+        - "traefik.port=8080"
+        - "traefik.frontend.rule=Host:${CI_PROJECT_NAME}.${JIRA_DOMAIN}"
+        #- "traefik.frontend.rule=Host:${CI_PROJECT_NAME}.${JIRA_DOMAIN}"
+        - "traefik.frontend.entryPoints=http, https"
+    networks:
+      - internal
+      - proxy
+    volumes:
+      - n_jira_sd_db_prod:/var/atlassian/jira
+    environment:
+      - CATALINA_OPTS='-Xmx4G'
+
+volumes:
+  n_jira_sd_db_prod:
+    driver_opts:
+      type: "nfs"
+      o: "addr=${JIRA_DOMAIN},nolock,soft,rw"
+      device: ":${NFS_ROOT}/$CI_PROJECT_NAME"
+  sd_jira_postgres_prod:
+    driver_opts:
+      type: "nfs"
+      o: "addr=${JIRA_DOMAIN},nolock,soft,rw"
+      device: ":${NFS_ROOT}/postgres"
+  confluence_prod:
+    driver_opts:
+      type: "nfs"
+      o: "addr=${JIRA_DOMAIN},nolock,soft,rw"
+      device: ":${NFS_ROOT}/confluence"
+
+networks:
+  proxy:
+    driver: overlay
+    external: true
+  internal:
+    driver: overlay
+    external: true
+
