@@ -28,7 +28,7 @@ deploy_dev:
     name: dev
     url: http://servicedesk.tinadev.ctg.lu
   script:
-    - export NFS_ROOT="/home/jlebourg/data"
+    - export NFS_ROOT="/nfs"
     - docker stack deploy jira_dev -c ${CI_PROJECT_NAME}_dev.yml
   only:
     - master
@@ -40,7 +40,7 @@ deploy_prod:
     name: production
     url: http://servicedesk.tina.ctg.lu
   script:
-    - export NFS_ROOT="/home/jlebourg/data"
+    - export NFS_ROOT="/nfs"
     - docker stack deploy jira -c ${CI_PROJECT_NAME}.yml
     
   only:
