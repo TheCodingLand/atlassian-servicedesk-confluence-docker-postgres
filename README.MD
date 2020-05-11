@@ -1,4 +1,4 @@
-# Service Desk Jira, Confluence, with postgress and traefik configuration
+# Service Desk Jira, Confluence, with postgres and traefik configuration
 
 - postgres / adminer
 - NFS volumes
